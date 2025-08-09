@@ -19,7 +19,7 @@ data/*.csv
 logs/*.log
 
 # MCP servers (exclude from git)
-mcp-servers/mcp-server-*
+#mcp-servers/mcp-server-*
 
 # Database
 *.db

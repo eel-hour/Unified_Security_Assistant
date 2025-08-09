@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    container_name: security_platform_db
+    environment:
+      POSTGRES_DB: logsdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - security_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Main Streamlit Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: security_platform_app
+    environment:
+      # Core Configuration
+      - DATABASE_URL=postgresql://postgres:secretpassword@db:5432/logsdb
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      - WATCH_DIRECTORY=/app/data
+      - CSV_SEPARATOR=${CSV_SEPARATOR:-;}
+      - DB_ECHO=${DB_ECHO:-false}
+      
+      # MCP Server Paths
+      - WAZUH_MCP_SERVER=/app/mcp-servers/mcp-server-wazuh-linux-amd64
+      - THEHIVE_MCP_SERVER=/app/mcp-servers/mcp-server-thehive-linux-amd64
+      
+      # Wazuh Configuration
+      - WAZUH_API_HOST=${WAZUH_API_HOST}
+      - WAZUH_API_PORT=${WAZUH_API_PORT}
+      - WAZUH_API_USERNAME=${WAZUH_API_USERNAME}
+      - WAZUH_API_PASSWORD=${WAZUH_API_PASSWORD}
+      - WAZUH_INDEXER_HOST=${WAZUH_INDEXER_HOST}
+      - WAZUH_INDEXER_PORT=${WAZUH_INDEXER_PORT}
+      - WAZUH_INDEXER_USERNAME=${WAZUH_INDEXER_USERNAME}
+      - WAZUH_INDEXER_PASSWORD=${WAZUH_INDEXER_PASSWORD}
+      - WAZUH_VERIFY_SSL=${WAZUH_VERIFY_SSL:-true}
+      - WAZUH_TEST_PROTOCOL=${WAZUH_TEST_PROTOCOL:-https}
+      
+      # TheHive Configuration
+      - THEHIVE_URL=${THEHIVE_URL}
+      - THEHIVE_API_TOKEN=${THEHIVE_API_TOKEN}
+      - VERIFY_SSL=${VERIFY_SSL:-true}
+      
+      # Logging Configuration
+      - RUST_LOG=${RUST_LOG:-info}
+      
+    volumes:
+      - ./data:/app/data
+      - ./mcp-servers:/app/mcp-servers
+      - ./logs:/app/logs
+    ports:
+      - "8501:8501"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - security_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  security_network:
+    driver: bridge

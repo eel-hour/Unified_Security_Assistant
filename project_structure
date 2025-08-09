@@ -1,0 +1,53 @@
+unified-security-platform/
+├── main.py
+├── config.py
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .env.template
+├── README.md
+├── .gitignore
+│
+├── assistants/
+│   ├── __init__.py
+│   ├── base_assistant.py
+│   ├── tickets_manager/
+│   │   ├── __init__.py
+│   │   ├── assistant.py
+│   │   └── tool_definitions.py
+│   ├── wazuh/
+│   │   ├── __init__.py
+│   │   ├── assistant.py
+│   │   └── tool_definitions.py
+│   └── thehive/
+│       ├── __init__.py
+│       ├── assistant.py
+│       └── tool_definitions.py
+│
+├── database/
+│   ├── __init__.py
+│   ├── models.py
+│   └── operations.py
+│
+├── ingestion/
+│   ├── __init__.py
+│   └── csv_handler.py
+│
+├── ui/
+│   ├── __init__.py
+│   └── sidebar.py
+│
+├── utils/
+│   ├── __init__.py
+│   └── mcp_client.py
+│
+├── data/
+│   └── .gitkeep
+│
+├── mcp-servers/
+│   ├── .gitkeep
+│   ├── mcp-server-wazuh-linux-amd64          # PLACE YOUR EXECUTABLE HERE
+│   └── mcp-server-thehive-linux-amd64        # PLACE YOUR EXECUTABLE HERE
+│
+└── logs/
+    └── .gitkeep

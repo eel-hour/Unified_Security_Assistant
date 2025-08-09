@@ -1,4 +1,4 @@
-# 🛡️ Unified Security Platform
+# 🛡️ Unified Security Assistant
 
 A comprehensive security platform that combines three specialized AI assistants:
 
